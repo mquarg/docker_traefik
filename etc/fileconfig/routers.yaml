@@ -1,0 +1,89 @@
+http:
+  # Add the router
+  routers:
+    dashboard:
+      entryPoints:
+      - websecure
+      middlewares:
+      - "user-auth"
+      rule: "Host(`mquarg.de`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      service: api@internal
+      tls:
+        certResolver: letsencrypt
+        domains:
+          - main: mquarg.de
+
+    nginx:
+      entryPoints:
+      - websecure
+      rule: "Host(`mquarg.de`) && PathPrefix(`/intra`)"
+      service: intranet
+      tls:
+        certResolver: letsencrypt
+        domains:
+          - main: mquarg.de
+
+    jira:
+      entryPoints:
+      - websecure
+      rule: "Host(`mquarg.de`) && PathPrefix(`/jira`)"
+      service: jira
+      tls:
+        certResolver: letsencrypt
+        domains:
+          - main: mquarg.de
+
+    bitbucket:
+      entryPoints:
+      - websecure
+      rule: "Host(`mquarg.de`) && PathPrefix(`/bitbucket`)"
+      service: bitbucket
+      tls:
+        certResolver: letsencrypt
+        domains:
+          - main: mquarg.de
+    confluence:
+      entryPoints:
+      - websecure
+      rule: "Host(`mquarg.de`) && PathPrefix(`/confluence`)"
+      service: confluence
+      tls:
+        certResolver: letsencrypt
+        domains:
+          - main: mquarg.de
+
+
+  middlewares:
+    secureHeaders:
+      headers:
+        sslRedirect: true
+#        stsIncludeSubdomains: true
+#        forceSTSHeader: true
+#        stsPreload: true
+#        stsSeconds: 31536000
+    user-auth:
+      basicAuth:
+        users:
+          - "admin:$apr1$P1ymFonj$S2Sw5gmFGXrFW1tAHCYwt."
+
+  services:
+    intranet:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.188.61:7000"
+    jira:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.188.65:8080/jira"
+    confluence:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.188.65:8090/confluence"
+    bitbucket:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.188.65:7990/bitbucket"
+    synchrony:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.188.65:8091/synchrony"
