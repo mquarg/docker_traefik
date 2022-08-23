@@ -1,0 +1,30 @@
+api:
+  dashboard: true
+
+entryPoints:
+  web:
+    address: :80
+
+  websecure:
+    address: :443
+    http:
+      tls:
+        certResolver: letsencrypt
+
+providers:
+  file:
+    directory: /etc/traefik/fileconfig
+    watch: true
+
+log:
+  filePath: "/var/log/traefik.log"
+  level: DEBUG
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: mquarg@gmx.de
+      storage: acme.json
+      keyType: EC384
+      httpChallenge:
+        entryPoint: web  
