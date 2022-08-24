@@ -5,6 +5,7 @@ http:
       entryPoints:
       - websecure
       middlewares:
+      - "allowed-ips"  
       - "user-auth"
       rule: "Host(`mquarg.de`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
       service: api@internal
@@ -65,6 +66,11 @@ http:
       basicAuth:
         users:
           - "admin:$apr1$P1ymFonj$S2Sw5gmFGXrFW1tAHCYwt."
+    allowed-ips:
+      ipWhiteList:
+        sourceRange:
+          - "127.0.0.1/32"
+          - "192.168.188.0/24"
 
   services:
     intranet:
