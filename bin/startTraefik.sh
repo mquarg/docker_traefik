@@ -18,10 +18,11 @@ if [ $CNT -eq 1 ]; then
 fi
 
 echo "start Traefik"
-docker run --name traefik -d -p 8080:8080 -p 80:80 -p 443:443 \
+docker run --name traefik -d --restart always -p 8080:8080 -p 80:80 -p 443:443 \
 -v /var/log/traefik.log:/var/log/traefik.log \
 -v ${ETC_DIR}/traefik.yml:/etc/traefik/traefik.yml \
 -v ${ETC_DIR}/fileconfig:/etc/traefik/fileconfig \
+-v ${ETC_DIR}/certs:/etc/traefik/certs \
 -v /var/run/docker.sock:/var/run/docker.sock \
 traefik:v2.8.3
 

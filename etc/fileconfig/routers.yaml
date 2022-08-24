@@ -5,7 +5,6 @@ http:
       entryPoints:
       - websecure
       middlewares:
-      - "allowed-ips"  
       - "user-auth"
       rule: "Host(`mquarg.de`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
       service: api@internal

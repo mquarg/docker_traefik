@@ -24,7 +24,7 @@ certificatesResolvers:
   letsencrypt:
     acme:
       email: mquarg@gmx.de
-      storage: acme.json
+      storage: /etc/traefik/certs/acme.json
       keyType: EC384
       httpChallenge:
         entryPoint: web  
