@@ -1,3 +1,29 @@
+tcp:
+  routers:
+    cloudstation:
+      entryPoints:
+      - cloudstation
+      rule: "ClientIP(`192.168.188.0/24`, `83.221.241.143`)"
+      service: cloudstation1
+      tls: {}
+
+    git:
+      entryPoints:
+      - git
+      rule: "ClientIP(`192.168.188.0/24`, `83.221.241.143`)"
+      service: bitbucket_ssh
+      
+  services:
+    cloudstation1:
+      loadBalancer:
+        servers:
+          - address: "192.168.188.10:6690"
+
+    bitbucket_ssh:
+      loadBalancer:
+        servers:
+          - address: "192.168.188.65:7999"
+
 http:
   # Add the router
   routers:
@@ -6,12 +32,14 @@ http:
       - websecure
       middlewares:
       - "user-auth"
+      - "allowed-ips"
       rule: "Host(`mquarg.de`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
       service: api@internal
       tls:
         certResolver: letsencrypt
         domains:
           - main: mquarg.de
+#        options: clientcert   
 
     nginx:
       entryPoints:
@@ -26,6 +54,8 @@ http:
     jira:
       entryPoints:
       - websecure
+      middlewares:
+      - "allowed-ips"
       rule: "Host(`mquarg.de`) && PathPrefix(`/jira`)"
       service: jira
       tls:
@@ -36,6 +66,8 @@ http:
     bitbucket:
       entryPoints:
       - websecure
+      middlewares:
+      - "allowed-ips"
       rule: "Host(`mquarg.de`) && PathPrefix(`/bitbucket`)"
       service: bitbucket
       tls:
@@ -45,6 +77,8 @@ http:
     confluence:
       entryPoints:
       - websecure
+      middlewares:
+      - "allowed-ips"
       rule: "Host(`mquarg.de`) && PathPrefix(`/confluence`)"
       service: confluence
       tls:
@@ -52,15 +86,26 @@ http:
         domains:
           - main: mquarg.de
 
+    diskstation:
+      entryPoints:
+      - diskstation
+      middlewares:
+      - "allowed-ips"
+      rule: "Host(`mquarg.de`) && PathPrefix(`/`)"
+      service: diskstation1
+      tls:
+        certResolver: letsencrypt
+        domains:
+          - main: mquarg.de
 
   middlewares:
     secureHeaders:
       headers:
         sslRedirect: true
-#        stsIncludeSubdomains: true
-#        forceSTSHeader: true
-#        stsPreload: true
-#        stsSeconds: 31536000
+        stsIncludeSubdomains: true
+        forceSTSHeader: true
+        stsPreload: true
+        stsSeconds: 31536000
     user-auth:
       basicAuth:
         users:
@@ -70,6 +115,8 @@ http:
         sourceRange:
           - "127.0.0.1/32"
           - "192.168.188.0/24"
+          - "83.221.241.143"
+          - "194.113.71.15"
 
   services:
     intranet:
@@ -92,3 +139,15 @@ http:
       loadBalancer:
         servers:
           - url: "http://192.168.188.65:8091/synchrony"
+
+    diskstation1:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.188.10:5000/"
+tls:
+  options:
+    clientcert:
+      clientAuth:
+        caFiles:
+          - /etc/traefik/certs/clientca.crt
+        clientAuthType: RequireAndVerifyClientCert

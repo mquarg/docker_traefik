@@ -11,6 +11,19 @@ entryPoints:
       tls:
         certResolver: letsencrypt
 
+  diskstation:
+    address: :5001
+    http:
+      tls:
+        certResolver: letsencrypt
+
+  cloudstation:
+    address: :6690
+
+  git:
+    address: :7999
+
+
 providers:
   file:
     directory: /etc/traefik/fileconfig
